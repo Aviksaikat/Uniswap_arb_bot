@@ -51,8 +51,8 @@ pub fn find_optimal_cycles(
             affected_pairs.iter().for_each(|pair_address| {
                 if let Some(cycle) = state.cycles_mapping.get(pair_address) {
                     pointers.extend(cycle.iter());
-                }                
-            });   
+                }
+            });
         }
         None => {
             for (_, cycles) in &state.cycles_mapping {
@@ -216,4 +216,3 @@ pub fn get_amount_out(
 
     a_out - a_out.saturating_mul(fees) / U256::from(10000)
 }
-

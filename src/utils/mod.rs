@@ -54,37 +54,28 @@ pub async fn get_logs(
     let mut call_config = CallConfig::default();
     call_config.with_log = Some(true);
 
-    trace_ops.tracing_options.tracer = Some(GethDebugTracerType::BuiltInTracer(GethDebugBuiltInTracerType::CallTracer));
-    trace_ops.tracing_options.tracer_config = Some(
-        GethDebugTracerConfig::BuiltInTracer(
-            GethDebugBuiltInTracerConfig::CallTracer(
-                call_config
-            )
-        )
-    );
+    trace_ops.tracing_options.tracer = Some(GethDebugTracerType::BuiltInTracer(
+        GethDebugBuiltInTracerType::CallTracer,
+    ));
+    trace_ops.tracing_options.tracer_config = Some(GethDebugTracerConfig::BuiltInTracer(
+        GethDebugBuiltInTracerConfig::CallTracer(call_config),
+    ));
     let block_num = Some(BlockId::Number(block_num));
 
     let call_frame = match client.debug_trace_call(tx, block_num, trace_ops).await {
-        Ok(d) => {
-            match d {
-                GethTrace::Known(d) => {
-                    match d {
-                        GethTraceFrame::CallTracer(d) => d,
-                        _ => return None
-                    }
-                }
-                _ => return None
-            }
+        Ok(d) => match d {
+            GethTrace::Known(d) => match d {
+                GethTraceFrame::CallTracer(d) => d,
+                _ => return None,
+            },
+            _ => return None,
         },
-        Err(_) => {
-            return None
-        }
-    }; 
+        Err(_) => return None,
+    };
 
     let mut logs = Vec::new();
     extract_logs(&call_frame, &mut logs);
-    
-    
+
     Some(logs)
 }
 
@@ -99,4 +90,3 @@ fn extract_logs(call_frame: &CallFrame, logs: &mut Vec<CallLogFrame>) {
         }
     }
 }
-

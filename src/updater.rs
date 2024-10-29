@@ -97,7 +97,6 @@ async fn update_block(
                     }
                 }
             }
-            
         }
     }
 }

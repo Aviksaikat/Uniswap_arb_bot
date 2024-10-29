@@ -3,12 +3,12 @@ use std::{
     collections::{HashMap, HashSet},
 };
 
+use crate::constants::WETH;
 use crate::contract_modules::uniswap_v2::types::UniV2Pool;
 use crate::helpers;
-use crate::constants::WETH;
 use ethers::prelude::*;
 use log::*;
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use tokio::sync::MutexGuard;
 
 pub type Cycle = Vec<IndexedPair>;

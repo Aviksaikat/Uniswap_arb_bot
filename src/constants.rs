@@ -4,7 +4,6 @@ pub const EXECUTOR_ADDRESS: &str = "0x0";
 pub const WETH: &str = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
 pub const SYNC_TOPIC: &str = "1c411e9a96e071241c2f21f7726b17ae89e3cab4c78be50e062b03a9fffbbad1";
 
-
 // CFMMS
 pub const UNISWAP_V2: [(&str, &str, &str, u32); 2] = [
     (

@@ -15,12 +15,12 @@ use contract_modules::uniswap_v2::checkpoint::Storage;
 use crossbeam_channel::unbounded;
 use ethers::utils::format_units;
 use state::State;
-use std::time::{Duration, Instant};
 use std::sync::Arc;
+use std::time::{Duration, Instant};
 
+use ethers::prelude::*;
 use log::*;
 use tokio::sync::Mutex;
-use ethers::prelude::*;
 
 use crate::calc::find_optimal_cycles;
 use crate::contract_modules::uniswap_v2::data_collector::data_collector::update_reserves;
@@ -86,9 +86,9 @@ pub async fn run(at_exit: std::sync::mpsc::Receiver<()>) {
     // Give time to  sync Uni data
     std::thread::sleep(Duration::from_secs(20));
 
-    let (s,r) = unbounded();
+    let (s, r) = unbounded();
     recon::mempool::start_recon(state.clone(), config.wss.clone(), block_oracle.clone(), s).await;
-    
+
     let decoded = hex::decode(constants::SYNC_TOPIC).unwrap();
     let sync_topic = H256::from_slice(&decoded);
 
@@ -102,17 +102,17 @@ pub async fn run(at_exit: std::sync::mpsc::Receiver<()>) {
         for log in data.logs {
             let topics = match log.topics {
                 Some(d) => d,
-                None => continue
+                None => continue,
             };
 
             let data = match log.data {
                 Some(d) => d,
-                None => continue
+                None => continue,
             };
 
             let address = match log.address {
                 Some(d) => d,
-                None => continue
+                None => continue,
             };
 
             let mut reserve0 = U256::zero();
@@ -126,23 +126,25 @@ pub async fn run(at_exit: std::sync::mpsc::Receiver<()>) {
                     found_swap = true;
                 }
             }
-        
-            if found_swap {    
+
+            if found_swap {
                 pending_state_updates.push(StateUpdateInternal {
                     address,
                     reserve0,
-                    reserve1
+                    reserve1,
                 });
 
                 affected_pairs.push(address);
             }
         }
 
-        if pending_state_updates.is_empty() { continue }
+        if pending_state_updates.is_empty() {
+            continue;
+        }
         State::apply_state_temp(&mut state, pending_state_updates);
 
         let cycles = find_optimal_cycles(&state, Some(affected_pairs));
-        
+
         let after: Duration = data.time.elapsed();
         if !cycles.is_empty() {
             info!(
@@ -157,13 +159,8 @@ pub async fn run(at_exit: std::sync::mpsc::Receiver<()>) {
                 "                  ------> Optimal WETH In: {:.9} ",
                 format_units(cycles[0].optimal_in, "ether").unwrap()
             );
-            info!(
-                "                  ------> E2E time: {:?} ",
-                after
-            );
-            info!(
-                "             ",
-            );
+            info!("                  ------> E2E time: {:?} ", after);
+            info!("             ",);
         }
 
         State::reset_temp_state(&mut state);

